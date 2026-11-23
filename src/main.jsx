@@ -65,8 +65,7 @@ function ProjectArt({ project, loading = 'lazy' }) {
   );
 }
 
-function ProjectGallery() {
-  const [view, setView] = useState('projects');
+function ProjectGallery({ view, setView }) {
   const gallery = useRef(null);
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -89,7 +88,6 @@ function ProjectGallery() {
     <section className="section work" id="work" aria-labelledby="work-title" ref={gallery}>
       <div className="section-heading" data-reveal>
         <h2 id="work-title">Portfolio<span>.</span></h2>
-        <p>Explore the projects and the ideas behind them.</p>
       </div>
       <div className="portfolio-tabs" role="group" aria-label="Portfolio view" style={{
         '--active-tab': tabs.findIndex(({ id }) => id === view),
@@ -134,7 +132,7 @@ function ProjectGallery() {
       </div>
       {view === 'stack' && <div className="stack-grid">
         {['HTML', 'CSS', 'JavaScript', 'Bootstrap 5', 'Java'].map((technology) => (
-          <div key={technology}><span aria-hidden="true">&lt;/&gt;</span><h3>{technology}</h3><p>Bliss & Beyond</p></div>
+          <div key={technology}><TechnologyLogo technology={technology} /><h3>{technology}</h3></div>
         ))}
       </div>}
     </section>
@@ -194,31 +192,6 @@ function TypedIntroduction() {
   );
 }
 
-function ProfileCard() {
-  const card = useRef(null);
-  function tilt(event) {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    card.current.style.setProperty('--tilt-x', `${(event.clientY - bounds.top - bounds.height / 2) / -30}deg`);
-    card.current.style.setProperty('--tilt-y', `${(event.clientX - bounds.left - bounds.width / 2) / 30}deg`);
-  }
-  return (
-    <figure className="profile-scene" onPointerMove={tilt} onPointerLeave={() => {
-      card.current.style.setProperty('--tilt-x', '0deg');
-      card.current.style.setProperty('--tilt-y', '0deg');
-    }}>
-      <div className="lanyard" aria-hidden="true">BUILD · LEARN · CREATE</div>
-      <div className="profile-pass" ref={card}>
-        <div className="pass-slot" aria-hidden="true" />
-        <div className="pass-top"><span>PERSONAL PORTFOLIO</span><span>01</span></div>
-        <strong>{profile.name}</strong>
-        <img src={profile.photo || '/images/abstract-study.jpg'} alt={profile.photo ? profile.photoAlt || profile.name : 'Abstract silver sculpture'} fetchPriority="high" />
-        <div className="pass-bottom"><span>CODE &amp; CURIOSITY</span><span aria-hidden="true">✳</span></div>
-      </div>
-      <figcaption>Move your pointer to explore</figcaption>
-    </figure>
-  );
-}
-
 function usePageAnimations() {
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -233,13 +206,16 @@ function usePageAnimations() {
         if (!entry.target.classList.contains('reveal-pending')) continue;
         entry.target.classList.remove('reveal-pending');
         if (preference.matches) continue;
+        const delay = entry.target.matches('.background-stat')
+          ? [...entry.target.parentElement.children].indexOf(entry.target) * 100
+          : 0;
         const animation = entry.target.animate(
           [{ opacity: 0, transform: 'translateY(48px) scale(.98)' }, { opacity: 1, transform: 'none' }],
-          { duration: 1000, easing: 'cubic-bezier(.22, 1, .36, 1)' },
+          { duration: 1000, delay, fill: 'backwards', easing: 'cubic-bezier(.22, 1, .36, 1)' },
         );
         animations.add(animation);
         animation.finished.then(() => animations.delete(animation)).catch(() => {});
-        const textElements = entry.target.querySelectorAll('p, h3, .background-status');
+        const textElements = entry.target.querySelectorAll('p, h3, .background-status, .overview-logo');
         textElements.forEach((element, index) => {
           const textAnimation = element.animate(
             [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
@@ -250,9 +226,9 @@ function usePageAnimations() {
         });
       }
     }, { threshold: .05, rootMargin: '0px 0px -40px 0px' });
-    const elements = document.querySelectorAll('[data-reveal]:not(.case-features), .project, .portfolio-tabs, .background-card, .background-stat, .case-features li, .case-breadcrumbs, .footer');
+    const elements = document.querySelectorAll('[data-reveal]:not(.case-features), .project, .portfolio-tabs, .background-card, .background-stat, .case-features li, .case-breadcrumbs, .case-heading > *, .case-cover, .footer');
     elements.forEach((element) => {
-      if (!preference.matches && element.getBoundingClientRect().top > window.innerHeight) element.classList.add('reveal-pending');
+      if (!preference.matches && (element.getBoundingClientRect().top > window.innerHeight || element.matches('.case-breadcrumbs, .case-heading > *, .case-cover'))) element.classList.add('reveal-pending');
       observer.observe(element);
     });
     function stopMotion() {
@@ -267,6 +243,57 @@ function usePageAnimations() {
       preference.removeEventListener('change', stopMotion);
     };
   }, []);
+}
+
+function TechnologyLogo({ technology }) {
+  const logos = {
+    React: 'react', TypeScript: 'typescript', HTML: 'html', CSS: 'css',
+    JavaScript: 'javascript', 'Bootstrap 5': 'bootstrap', 'Java 21': 'java', Java: 'java',
+    'Spring Boot': 'spring', 'Spring Security': 'spring', 'Spring Data JPA': 'spring',
+    MySQL: 'mysql', 'Tailwind CSS': 'tailwind', Python: 'python', FastAPI: 'fastapi',
+    SQLAlchemy: 'sqlalchemy', Supabase: 'supabase', PostgreSQL: 'postgresql',
+    Vite: 'vite', 'Node.js': 'nodejs', Express: 'express', 'Vercel Functions': 'vercel',
+    'TanStack Start': 'tanstack', Zod: 'zod', openpyxl: 'python',
+  };
+  const logo = logos[technology];
+  return logo
+    ? <img className={`technology-logo technology-logo--${logo}`} src={`/icons/tech/${logo}.svg`} alt="" width="24" height="24" />
+    : <Icon name="code" />;
+}
+
+function TypedProjectTitle({ title }) {
+  const heading = useRef(null);
+  const [length, setLength] = useState(0);
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let timer;
+    const observer = new IntersectionObserver(([entry]) => {
+      clearInterval(timer);
+      if (preference.matches) { setLength(title.length); return; }
+      setLength(0);
+      if (!entry.isIntersecting) return;
+      let count = 0;
+      timer = setInterval(() => {
+        count += 1;
+        setLength(count);
+        if (count >= title.length) clearInterval(timer);
+      }, 110);
+    }, { threshold: .3 });
+    function applyPreference() {
+      if (preference.matches) { clearInterval(timer); setLength(title.length); }
+    }
+    observer.observe(heading.current);
+    preference.addEventListener('change', applyPreference);
+    return () => {
+      clearInterval(timer);
+      observer.disconnect();
+      preference.removeEventListener('change', applyPreference);
+    };
+  }, [title]);
+  return <h1 className="typed-line" ref={heading} aria-label={title}>
+    <span className="type-reserve" aria-hidden="true">{title}</span>
+    <span className="type-output" aria-hidden="true">{title.slice(0, length)}<span className="typing-cursor" hidden={length >= title.length}>|</span></span>
+  </h1>;
 }
 
 function ProjectPage({ project }) {
@@ -289,30 +316,63 @@ function ProjectPage({ project }) {
       <div className="case-hero">
         <header className="case-heading">
           <p className="label">{project.category}{project.sample && ' / Sample'}</p>
-          <h1>{project.title}</h1>
+          {project.overview ? <TypedProjectTitle title={project.title} /> : <h1>{project.title}</h1>}
           <p>{project.description}</p>
+          {project.roleLabel && (project.contribution || project.contributions) && (
+            <a className="case-role-link" href="#contribution-title">My role · {project.roleLabel}</a>
+          )}
+          <div className="project-links">
+            {project.demo && <a className="case-action live-action" href={project.demo}>Visit live site <Icon name="diagonal" /></a>}
+            {project.video && <a className="case-action video-action" href={project.video} target="_blank" rel="noopener noreferrer"><span className="play-disc" aria-hidden="true">▶</span> Watch demo</a>}
+            {project.source && <a className="case-action" href={project.source}><Icon name="github" /> Source code</a>}
+          </div>
           {project.technologies?.length > 0 && (
             <div className="tech-stack">
               <h2 id="tech-stack-title"><span className="tech-heading-mark" aria-hidden="true">&lt;/&gt;</span> Technologies used</h2>
               <ul className="tags" aria-labelledby="tech-stack-title">
-                {project.technologies.map((technology) => <li key={technology}><span className="technology-mark" aria-hidden="true">{technology === 'JavaScript' ? 'JS' : technology.slice(0, 1)}</span>{technology}</li>)}
+                {project.technologies.map((technology) => <li key={technology}><TechnologyLogo technology={technology} />{technology}</li>)}
               </ul>
             </div>
           )}
-          <div className="project-links">
-            {project.demo && <a className="primary-button" href={project.demo}>Visit live site <Icon name="diagonal" /></a>}
-            {project.source && <a className="back-link" href={project.source}>Source code <Icon name="diagonal" /></a>}
-          </div>
         </header>
         <figure className="case-cover">
           <ProjectArt project={project} loading="eager" />
           {project.image && <figcaption><span>{project.title}</span><span>Project cover</span></figcaption>}
+          {project.story?.awards && (
+            <div className="project-award-title" aria-label="Awards">
+              <Icon name="trophy" />
+              <p>{project.story.awards.join(' · ')}</p>
+            </div>
+          )}
         </figure>
       </div>
-      <section className="section case-overview" aria-labelledby="overview-title" data-reveal>
+      {project.screenshots?.length > 0 && (
+        <section className="section" aria-labelledby="screenshots-title" data-reveal>
+          <h2 id="screenshots-title">Screenshots<span>.</span></h2>
+          <div className="project-track screenshot-track" tabIndex={0} role="region" aria-label="Project screenshots">
+            {project.screenshots.map(({ src, caption }) => (
+              <figure key={src}>
+                <a href={src} target="_blank" rel="noopener noreferrer"><img src={src} alt={caption} loading="lazy" /></a>
+                <figcaption>{caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
+      <section className={project.overview ? 'section project-overview' : 'section case-overview'} aria-labelledby="overview-title" data-reveal>
         <h2 id="overview-title">About the project<span>.</span></h2>
         <div>
-          <p>{project.details || project.description}</p>
+          <div className={project.logo ? 'overview-intro overview-intro--with-logo' : 'overview-intro'}>
+            <p>{project.details || project.description}{project.recognition && ` ${project.recognition}`}</p>
+            {project.logo && <img className="overview-logo" src={project.logo} alt={`${project.title} logo`} loading="lazy" />}
+          </div>
+          {project.overview && (
+            <div className="overview-pillars">
+              {project.overview.map(({ title, text }) => (
+                <article key={title}><h3>{title}</h3><p>{text}</p></article>
+              ))}
+            </div>
+          )}
           <ul className="tags" aria-label="Project topics">
             {project.tags.map((tag) => <li key={tag}>{tag}</li>)}
           </ul>
@@ -328,10 +388,53 @@ function ProjectPage({ project }) {
           </ol>
         </section>
       )}
-      {project.context && (
+      {project.id !== 'shay-sett' && (project.story ? (
+        <section className="section project-story" aria-labelledby="context-title">
+          <div className="story-heading" data-reveal>
+            <h2 id="context-title">Why we built it<span>.</span></h2>
+            <p>{project.story.introduction}</p>
+          </div>
+          <blockquote className="story-question" data-reveal>{project.story.question}</blockquote>
+          <div className="story-chapters">
+            {project.story.sections.map(({ title, text }, index) => (
+              <article key={title} data-reveal>
+                <span className="story-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <h3>{title}</h3><p>{text}</p>
+              </article>
+            ))}
+          </div>
+          <div className="story-recognition" data-reveal>
+            <Icon name="trophy" />
+            <div><span className="label">Team CoralCode · 2026 recognition</span>
+              <ul>{project.story.awards.map((award) => <li key={award}>{award}</li>)}</ul>
+            </div>
+          </div>
+        </section>
+      ) : project.context && (
         <section className="section case-overview" aria-labelledby="context-title" data-reveal>
           <h2 id="context-title">Why we built it<span>.</span></h2>
           <p>{project.context}</p>
+        </section>
+      ))}
+      {project.contributions ? (
+        <section className="section contribution-section" aria-labelledby="contribution-title">
+          <div className="contribution-heading" data-reveal>
+            <h2 id="contribution-title">My contribution<span>.</span></h2>
+            <p>From understanding the business problem to building and testing the solution.</p>
+          </div>
+          <div className="contribution-grid">
+            {project.contributions.map(({ title, icon, text }, index) => (
+              <article className="contribution-card" key={title} data-reveal>
+                <div className="contribution-card-top"><span className="contribution-icon"><Icon name={icon} /></span><span className="label">{String(index + 1).padStart(2, '0')}</span></div>
+                <h3>{title}</h3><p>{text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : project.contribution && (
+        <section className="section contribution-text" aria-labelledby="contribution-title" data-reveal>
+          <h2 id="contribution-title">My contribution<span>.</span></h2>
+          <p>{project.contribution}</p>
         </section>
       )}
     </article>
@@ -340,6 +443,7 @@ function ProjectPage({ project }) {
 
 function App() {
   usePageAnimations();
+  const [portfolioView, setPortfolioView] = useState('projects');
   const projectPage = window.location.pathname.startsWith('/projects/');
   const projectId = window.location.pathname.replace(/\/$/, '').split('/').pop();
   const selectedProject = projectPage && projects.find(({ id }) => id === projectId);
@@ -391,7 +495,7 @@ function App() {
   return (
     <>
       <a className="skip-link" href="#main">Skip to content</a>
-      <header className="shell header" id="top">
+      {!projectPage && <header className="shell header" id="top">
         <nav aria-label="Main navigation">
           <a aria-current={activeSection === 'top' ? 'location' : undefined} href={projectPage ? '/#top' : '#top'}>Home</a>
           <a aria-current={activeSection === 'about' ? 'location' : undefined} href={projectPage ? '/#about' : '#about'}>About</a>
@@ -401,13 +505,13 @@ function App() {
             <Icon name="theme" />
           </button>
         </nav>
-      </header>
+      </header>}
       <main className="shell" id="main">
         {projectPage ? <ProjectPage project={selectedProject} /> : <>
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <p className="label hero-label"><span /> Personal portfolio</p>
-            <h1 id="hero-title">Building ideas.<br /><em>Creating experiences.</em></h1>
+            <h1 id="hero-title">I make complex<br /><em>things click.</em></h1>
             <p className="intro">{profile.intro}</p>
             <a className="primary-button" href="#work">Explore work <Icon name="down" /></a>
             <div className="hero-socials" aria-label="Find me">
@@ -418,7 +522,9 @@ function App() {
               {profile.email && <a className="contact-link contact-icon" href={`mailto:${profile.email}`} aria-label={`Email ${profile.email}`} title={profile.email}><Icon name="email" /></a>}
             </div>
           </div>
-          <ProfileCard />
+          <div className="click-ripple" aria-hidden="true">
+            <span />
+          </div>
         </section>
 
         <section className="section about" id="about" aria-labelledby="about-title">
@@ -438,27 +544,27 @@ function App() {
               <h2>Education</h2>
               <article className="background-card">
                 <img className="background-symbol university-logo" src="/images/uit.jpg" alt="University of Information Technology logo" loading="lazy" />
-                <div><h3>University of Information Technology</h3><p>Third-year student</p><span className="background-status">Currently studying</span></div>
+                <div><h3><a href="https://www.uit.edu.mm/" target="_blank" rel="noopener noreferrer">University of Information Technology ↗</a></h3><p>Third-year student</p><span className="background-status">Currently studying</span></div>
               </article>
             </div>
           </div>
           <div className="background-stats">
-            <a href="/projects/bliss-beyond" className="background-stat">
+            <a href="#work" className="background-stat" onClick={() => setPortfolioView('projects')}>
               <div><span className="stat-symbol" aria-hidden="true">&lt;/&gt;</span><strong>{projects.filter((project) => !project.sample).length}</strong></div>
               <h3>Projects</h3><p>Web applications and team projects</p>
             </a>
-            <div className="background-stat">
+            <a href="#work" className="background-stat" onClick={() => setPortfolioView('certificates')}>
               <div><span className="stat-symbol" aria-hidden="true"><Icon name="certificate" /></span><strong>{certificates.length}</strong></div>
               <h3>Certificates</h3><p>Professional certification and event participation</p>
-            </div>
-            <div className="background-stat">
+            </a>
+            <a href="#work" className="background-stat" onClick={() => setPortfolioView('achievements')}>
               <div><span className="stat-symbol" aria-hidden="true"><Icon name="trophy" /></span><strong>{achievements.length}</strong></div>
               <h3>Awards</h3><p>AI Ocean Award Winner and Best Pitch</p>
-            </div>
+            </a>
           </div>
         </section>
 
-        <ProjectGallery />
+        <ProjectGallery view={portfolioView} setView={setPortfolioView} />
 
         <section className="section contact" id="contact" aria-labelledby="contact-title">
           <h2 id="contact-title" data-reveal>Get in touch<span>.</span></h2>
@@ -472,7 +578,7 @@ function App() {
       </main>
       <footer className="shell footer">
         <span>{profile.name} / Portfolio</span>
-        <a href="#top">Back to top <Icon name="up" /></a>
+        <a href={projectPage ? '#main' : '#top'}>Back to top <Icon name="up" /></a>
       </footer>
     </>
   );
