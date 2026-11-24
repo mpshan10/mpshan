@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { profile, projects, certificates, achievements } from './content';
-import '@fontsource/cormorant-garamond/latin-600.css';
 import './styles.css';
 
 function Icon({ name }) {
@@ -19,7 +18,6 @@ function Icon({ name }) {
     code: 'm6 5-4 5 4 5m8-10 4 5-4 5m-3-12-2 14',
     chip: 'M5 5h10v10H5V5Zm3-3v3m4-3v3M8 15v3m4-3v3M2 8h3m-3 4h3m10-4h3m-3 4h3',
     email: 'M3 4h14v12H3V4Zm0 1 7 6 7-6',
-    github: 'M7 17c-4 1-4-2-5-2m10 3v-3c0-1 .3-1.5 .7-2-2.5-.3-5.2-1.2-5.2-5.5 0-1.2.4-2.2 1.1-3-.1-.3-.5-1.5.1-3 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C19.9 1.2 21 1.5 21 1.5c.6 1.5.2 2.7.1 3 .7.8 1.1 1.8 1.1 3 0 4.3-2.7 5.2-5.2 5.5.5.5.8 1.2.8 2V18',
     theme: 'M10 2v2m0 12v2M2 10h2m12 0h2M4.3 4.3l1.4 1.4m8.6 8.6 1.4 1.4m0-11.4-1.4 1.4m-8.6 8.6-1.4 1.4M14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
   };
 
@@ -31,38 +29,7 @@ function Icon({ name }) {
 }
 
 function ProjectArt({ project, loading = 'lazy' }) {
-  if (project.image) {
-    return <img className="project-art" data-project={project.id} src={project.image} alt={project.imageAlt} loading={loading} />;
-  }
-
-  return (
-    <div className={`project-art art-${project.id}`} aria-hidden="true">
-      {project.id === 'field-notes' && (
-        <div className="trail-print">
-          <span>THE OUTDOOR INDEX</span>
-          <strong>Field<br />Notes</strong>
-          <span>TRAIL GUIDE / VOL. 01</span>
-          <svg viewBox="0 0 180 180" className="contours">
-            {Array.from({ length: 9 }, (_, index) => (
-              <path key={index} d="M93 22C117 8 155 24 157 58S139 104 154 131 126 168 99 155 39 170 25 142 45 100 27 78 42 32 68 35Z"
-                transform={`translate(90 90) scale(${1 - index * 0.09}) translate(-90 -90)`} />
-            ))}
-          </svg>
-        </div>
-      )}
-      {project.id === 'daymark' && (
-        <div className="planner">
-          <span>Daymark / Weekly view</span>
-          <strong>A week in view.</strong>
-          <div className="planner-grid">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
-              <div key={day}><span>{day}</span><i /><i /><i /></div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <img className="project-art" data-project={project.id} src={project.image} alt={project.imageAlt} loading={loading} />;
 }
 
 function ProjectGallery({ view, setView }) {
@@ -83,6 +50,7 @@ function ProjectGallery({ view, setView }) {
     { id: 'achievements', label: 'Achievements', icon: 'trophy' },
     { id: 'stack', label: 'Tech Stack', icon: 'chip' },
   ];
+  const activeTab = tabs.findIndex(({ id }) => id === view);
   const credentials = view === 'certificates' ? certificates : achievements;
   return (
     <section className="section work" id="work" aria-labelledby="work-title" ref={gallery}>
@@ -90,9 +58,9 @@ function ProjectGallery({ view, setView }) {
         <h2 id="work-title">Portfolio<span>.</span></h2>
       </div>
       <div className="portfolio-tabs" role="group" aria-label="Portfolio view" style={{
-        '--active-tab': tabs.findIndex(({ id }) => id === view),
-        '--active-column': tabs.findIndex(({ id }) => id === view) % 2,
-        '--active-row': Math.floor(tabs.findIndex(({ id }) => id === view) / 2),
+        '--active-tab': activeTab,
+        '--active-column': activeTab % 2,
+        '--active-row': Math.floor(activeTab / 2),
       }}>
         <span className="liquid-tab-highlight" aria-hidden="true" />
         {tabs.map(({ id, label, icon }) => (
@@ -119,7 +87,6 @@ function ProjectGallery({ view, setView }) {
             <div className="project-visual"><ProjectArt project={project} /></div>
             <div className="project-meta">
               <span className="label">{String(index + 1).padStart(2, '0')} / {project.category}</span>
-              {project.sample && <span className="sample-label">Sample</span>}
             </div>
             <h3 className="project-title">
               <a href={`/projects/${project.id}`} className="project-button">
@@ -315,7 +282,7 @@ function ProjectPage({ project }) {
       </nav>
       <div className="case-hero">
         <header className="case-heading">
-          <p className="label">{project.category}{project.sample && ' / Sample'}</p>
+          <p className="label">{project.category}</p>
           {project.overview ? <TypedProjectTitle title={project.title} /> : <h1>{project.title}</h1>}
           <p>{project.description}</p>
           {project.roleLabel && (project.contribution || project.contributions) && (
@@ -497,10 +464,10 @@ function App() {
       <a className="skip-link" href="#main">Skip to content</a>
       {!projectPage && <header className="shell header" id="top">
         <nav aria-label="Main navigation">
-          <a aria-current={activeSection === 'top' ? 'location' : undefined} href={projectPage ? '/#top' : '#top'}>Home</a>
-          <a aria-current={activeSection === 'about' ? 'location' : undefined} href={projectPage ? '/#about' : '#about'}>About</a>
-          <a aria-current={activeSection === 'work' ? 'location' : undefined} href={projectPage ? '/#work' : '#work'}>Portfolio</a>
-          <a aria-current={activeSection === 'contact' ? 'location' : undefined} href={projectPage ? '/#contact' : '#contact'}>Contact</a>
+          <a aria-current={activeSection === 'top' ? 'location' : undefined} href="#top">Home</a>
+          <a aria-current={activeSection === 'about' ? 'location' : undefined} href="#about">About</a>
+          <a aria-current={activeSection === 'work' ? 'location' : undefined} href="#work">Portfolio</a>
+          <a aria-current={activeSection === 'contact' ? 'location' : undefined} href="#contact">Contact</a>
           <button className="icon-button" type="button" aria-label="Dark theme" aria-pressed={dark} onClick={() => setDark(!dark)}>
             <Icon name="theme" />
           </button>
@@ -550,7 +517,7 @@ function App() {
           </div>
           <div className="background-stats">
             <a href="#work" className="background-stat" onClick={() => setPortfolioView('projects')}>
-              <div><span className="stat-symbol" aria-hidden="true">&lt;/&gt;</span><strong>{projects.filter((project) => !project.sample).length}</strong></div>
+              <div><span className="stat-symbol" aria-hidden="true">&lt;/&gt;</span><strong>{projects.length}</strong></div>
               <h3>Projects</h3><p>Web applications and team projects</p>
             </a>
             <a href="#work" className="background-stat" onClick={() => setPortfolioView('certificates')}>

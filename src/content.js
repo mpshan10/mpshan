@@ -1,10 +1,7 @@
 export const profile = {
   name: 'Myat Phone Swe Han',
-  headline: ['Ideas into', 'interfaces.'],
   intro: 'See what we built and how I contributed.',
   bio: 'I’m a third-year student at the University of Information Technology. Through coursework and hackathons, I’ve worked with teammates to understand what users need, build interfaces, and test how they work.',
-  photo: '',
-  photoAlt: '',
   email: 'myatphoneswehan@gmail.com',
   links: [
     { label: 'GitHub · mpshan10', url: 'https://github.com/mpshan10' },
@@ -89,7 +86,7 @@ export const projects = [
     image: '/images/bliss-beyond-logo.png',
     imageAlt: 'Bliss & Beyond logo',
     demo: 'https://bliss-beyond-bliss24.vercel.app/',
-    video: '/videos/bliss-beyond.mp4',
+    video: 'https://drive.google.com/file/d/1rRqTzGgjKav2rxQVAJYrjziVU-3xUpNa/view?usp=sharing',
     source: 'https://github.com/mpshan10/BlissBeyond',
   },
   {

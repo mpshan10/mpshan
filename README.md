@@ -1,4 +1,4 @@
-# Portfolio
+# Myat Phone Swe Han | Portfolio
 
 A single-page React portfolio built with JavaScript, CSS, HTML, and Vite.
 
@@ -11,15 +11,12 @@ npm run dev
 
 Open the Local URL printed by Vite. Use `npm run build` to produce the production site in `dist/` and `npm run preview` to check that build locally.
 
-## Add your content
+## Project structure
 
-Edit `src/content.js` for your name, headline, bio, email, social links, and projects.
-
-- Put your photo and project images in `public/images/`. Use paths such as `/images/portrait.webp` for `photo` or `image`. Add alt text that describes each meaningful image.
-- Replace the sample projects and give each project a unique `id`. Set `sample: false` or omit it for real projects.
-- Put your live and repository URLs in each project's `demo` and `source` fields. Empty links are hidden.
-- Each project has a shareable page at `/projects/<id>`. Use `details` for the overview and optional `features` entries with `title` and `text` for highlights.
-- Add social links as `{ label: 'LinkedIn', url: 'https://www.linkedin.com/in/your-profile/' }` entries in `profile.links`.
+- `src/content.js` contains the profile, five projects, credentials, and links to live sites, demos, and source repositories.
+- `src/main.jsx` renders the homepage and project detail pages at `/projects/<id>`.
+- `src/styles.css` defines the responsive layouts, horizontal galleries, light and dark themes, and reduced-motion styles.
+- `public/` contains the project images, technology icons, and credentials served by Vite.
 
 ## Deploy to Vercel
 
