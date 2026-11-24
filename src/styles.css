@@ -722,6 +722,12 @@ a.background-stat:hover { border-color: var(--accent); }
 
 .project-track .project { flex-basis: clamp(16rem, 28vw, 23rem); padding: .85rem; }
 .project-track .project-visual .project-art { aspect-ratio: 1.65; object-fit: contain; background: var(--paper); }
+:is(.project-visual, .case-cover) > img.project-art[data-project="bliss-beyond"] {
+  box-sizing: border-box;
+  padding: 4%;
+  object-fit: contain;
+  background: #fefbf4;
+}
 .project-track .project-title { font-size: 1.4rem; }
 .project-track .project > p { font-size: .85rem; }
 .project-track .project:is(:hover, :focus-within) .project-visual img { transform: none; }

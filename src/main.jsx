@@ -32,7 +32,7 @@ function Icon({ name }) {
 
 function ProjectArt({ project, loading = 'lazy' }) {
   if (project.image) {
-    return <img className="project-art" src={project.image} alt={project.imageAlt} loading={loading} />;
+    return <img className="project-art" data-project={project.id} src={project.image} alt={project.imageAlt} loading={loading} />;
   }
 
   return (
