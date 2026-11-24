@@ -1,23 +1,15 @@
 # Myat Phone Swe Han | Portfolio
 
-A single-page React portfolio built with JavaScript, CSS, HTML, and Vite.
+I’m a third-year student at the University of Information Technology. My portfolio brings together the software I’ve built with classmates and hackathon teammates. Each project page shows what the team built and how it works.
 
-## Run locally
+## Featured projects
 
-```sh
-npm ci
-npm run dev
-```
+**Shay Sett** helps small business owners understand why growing sales can still leave them short of cash. I built the Financial Health page, tested financial workflows, and helped define what owners needed to see on the dashboard. Our team, CoralCode, won the AI Ocean Award and Best Pitch at the 2026 buildathon.
 
-Open the Local URL printed by Vite. Use `npm run build` to produce the production site in `dist/` and `npm run preview` to check that build locally.
+**Bliss & Beyond** is an event-planning application I led a student team in building for our Enterprise Application Development course. Customers can compare venues and catering packages, review a quotation, and track their booking.
 
-## Project structure
+## More projects
 
-- `src/content.js` contains the profile, five projects, credentials, and links to live sites, demos, and source repositories.
-- `src/main.jsx` renders the homepage and project detail pages at `/projects/<id>`.
-- `src/styles.css` defines the responsive layouts, horizontal galleries, light and dark themes, and reduced-motion styles.
-- `public/` contains the project images, technology icons, and credentials served by Vite.
-
-## Deploy to Vercel
-
-Push this folder to a Git repository and import it into Vercel. Use the **Vite** framework preset, `npm run build` for the build command, and `dist` for the output directory. The site uses static assets and needs no environment variables.
+- **IGNIS** helps visitors explore NASA microgravity combustion experiments. I developed the public Mission Console, where visitors can describe a scenario, compare experiments, and see gaps in the evidence.
+- **CycleLink MM** connects Myanmar businesses that have surplus materials with those looking for supplies nearby.
+- **PixelPop Studio** turns webcam photos into a framed photo strip that visitors can download or print.
